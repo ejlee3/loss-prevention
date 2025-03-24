@@ -1,0 +1,21 @@
+#
+# Copyright (C) 2024 Intel Corporation.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+FROM intel/dlstreamer:2025.0.1-dev-ubuntu22
+USER root
+
+RUN pip install ultralytics
+
+WORKDIR /opt/intel/dlstreamer/samples/
+RUN ./download_public_models.sh yolov8s
+
+WORKDIR /opt/intel/dlstreamer/samples/gstreamer/gst_launch/multi_stream
+RUN wget https://videos.pexels.com/video-files/1192116/1192116-sd_640_360_30fps.mp4
+
+RUN apt update && \
+    apt install -y gstreamer1.0-plugins-ugly && \
+    apt clean && \
+    rm -rf /var/lib/apt/lists/*

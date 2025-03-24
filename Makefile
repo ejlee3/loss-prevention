@@ -63,6 +63,9 @@ build-realsense:
 build-pipeline-server: | download-models update-submodules download-sample-videos
 	docker build --build-arg HTTPS_PROXY=${HTTPS_PROXY} --build-arg HTTP_PROXY=${HTTP_PROXY} -t dlstreamer:pipeline-server -f src/pipeline-server/Dockerfile.pipeline-server src/pipeline-server
 
+build-multi-stream: 
+	docker build --build-arg HTTPS_PROXY=${HTTPS_PROXY} --build-arg HTTP_PROXY=${HTTP_PROXY} -t dlstreamer:multi-stream -f src/Dockerfile.multi_stream src/
+
 run:
 	docker compose -f src/$(DOCKER_COMPOSE) up -d
 
@@ -89,6 +92,11 @@ run-headless: | download-models update-submodules download-sample-videos
 
 run-pipeline-server: | build-pipeline-server
 	RETAIL_USE_CASE_ROOT=$(RETAIL_USE_CASE_ROOT) docker compose -f src/pipeline-server/docker-compose.pipeline-server.yml up -d
+
+run-multi-stream: | download-models download-sample-videos
+	xhost +local:docker
+	docker compose -f src/docker-compose-multi-cam.yml up -d
+# docker run -it --user root --network host --privileged --ipc host -v ./src/entrypoint_multistream.sh:/opt/intel/dlstreamer/samples/gstreamer/gst_launch/multi_stream/entrypoint_multistream.sh -v ./models:/home/pipeline-server/models -e CONTAINER_NAME=$[CONTAINER_NAME] dlstreamer:multi-stream
 
 down-pipeline-server:
 	docker compose -f src/pipeline-server/docker-compose.pipeline-server.yml down
